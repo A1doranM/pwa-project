@@ -1,7 +1,7 @@
-let shareImageButton = document.querySelector('#share-image-button');
-let createPostArea = document.querySelector('#create-post');
-let closeCreatePostModalButton = document.querySelector('#close-create-post-modal-btn');
-var sharedMomentsArea = document.querySelector('#shared-moments');
+const shareImageButton = document.querySelector('#share-image-button');
+const createPostArea = document.querySelector('#create-post');
+const closeCreatePostModalButton = document.querySelector('#close-create-post-modal-btn');
+const sharedMomentsArea = document.querySelector('#shared-moments');
 
 function openCreatePostModal() {
     createPostArea.style.display = 'block';
@@ -30,12 +30,33 @@ shareImageButton.addEventListener('click', openCreatePostModal);
 
 closeCreatePostModalButton.addEventListener('click', closeCreatePostModal);
 
+//cache on demand
+// function onSaveButtonClicked(event) {
+//     console.log('clicked');
+//     caches.open('user-requested')
+//         .then((cache) => {
+//             cache.addAll([
+//                 'https://httpbin.org/get',
+//                 '/src/images/sf-boat.jpg'
+//             ])
+//                 .then((_) => {
+//                     console.log('feed.js, cache on demand successful');
+//                 })
+//                 .catch((err) => {
+//                     console.log('feed.js, cache on demand unsuccessful');
+//                 });
+//         })
+//         .catch((err) => {
+//             console.log('Error in feed.js when onSaveButton clicked: ', err);
+//         });
+// }
+
 function createCard() {
     const cardWrapper = document.createElement('div');
     cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
     const cardTitle = document.createElement('div');
     cardTitle.className = 'mdl-card__title';
-    cardTitle.style.backgroundImage = 'url("/src/images/sf-boat.jpg")';
+    cardTitle.style.backgroundImage = 'url("src/images/sf-boat.jpg")';
     cardTitle.style.backgroundSize = 'cover';
     cardTitle.style.height = '180px';
     cardWrapper.appendChild(cardTitle);
@@ -48,6 +69,10 @@ function createCard() {
     cardSupportingText.className = 'mdl-card__supporting-text';
     cardSupportingText.textContent = 'In San Francisco';
     cardSupportingText.style.textAlign = 'center';
+    // const cardSaveButton = document.createElement('button');
+    // cardSaveButton.textContent = 'Save';
+    // cardSaveButton.addEventListener('click', onSaveButtonClicked);
+    // cardSupportingText.appendChild(cardSaveButton);
     cardWrapper.appendChild(cardSupportingText);
     componentHandler.upgradeElement(cardWrapper);
     sharedMomentsArea.appendChild(cardWrapper);

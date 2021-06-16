@@ -1,6 +1,5 @@
 const CACHE_VERSION = 'static-v3';
 const CACHE_DYNAMIC = 'dynamic-v3';
-
 self.addEventListener('install', (event) => {
     console.log('Installing Service Worker: ', event);
     event.waitUntil(caches.open(CACHE_VERSION)
