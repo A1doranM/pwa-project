@@ -1,6 +1,9 @@
+const CACHE_VERSION = 'static-v3';
+const CACHE_DYNAMIC = 'dynamic-v3';
+
 self.addEventListener('install', (event) => {
     console.log('Installing Service Worker: ', event);
-    event.waitUntil(caches.open('static-v2')
+    event.waitUntil(caches.open(CACHE_VERSION)
         .then((cache) => {
             console.log('Precaching App Shell');
             cache.addAll([
@@ -17,6 +20,9 @@ self.addEventListener('install', (event) => {
                 'https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css'
             ]);
         })
+        .then((_) => {
+            console.log('App Shell precached');
+        })
         .catch((err) => {
             console.log('Error in sw.js when open caches: ', err);
         }));
@@ -24,6 +30,17 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
     console.log('Activating Service Worker: ', event);
+    event.waitUntil(
+        caches.keys()
+            .then((keyList) => {
+                return Promise.all(keyList.map((key) => {
+                    if (key !== CACHE_VERSION && key !== CACHE_DYNAMIC) {
+                        console.log('[Service Worker] Removing old cache.', key);
+                        return caches.delete(key);
+                    }
+                }));
+            })
+    );
     return self.clients.claim();
 });
 
@@ -36,7 +53,7 @@ self.addEventListener('fetch', (event) => {
                 } else {
                     return fetch(event.request)
                         .then((response) => {
-                            caches.open('dynamic')
+                            caches.open(CACHE_DYNAMIC)
                                 .then((cache) => {
                                     cache.put(event.request.url, response.clone())
                                         .catch((err) => {
