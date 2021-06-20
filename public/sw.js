@@ -1,3 +1,5 @@
+importScripts('/src/js/idb.js');
+
 const CACHE_STATIC_NAME = 'static-v15';
 const CACHE_DYNAMIC_NAME = 'dynamic-v2';
 const STATIC_FILES = [
@@ -6,6 +8,7 @@ const STATIC_FILES = [
     '/offline.html',
     '/src/js/app.js',
     '/src/js/feed.js',
+    '/src/js/idb.js',
     '/src/js/material.min.js',
     '/src/css/app.css',
     '/src/css/feed.css',
@@ -34,7 +37,11 @@ self.addEventListener('install', function (event) {
         caches.open(CACHE_STATIC_NAME)
             .then(function (cache) {
                 console.log('[Service Worker] Precaching App Shell');
-                cache.addAll(STATIC_FILES);
+                cache.addAll(STATIC_FILES)
+                    .then()
+                    .catch((err) => {
+                        console.log('Error in sw.js when trying to precache app shell: ', err);
+                    });
             })
     )
 });
@@ -67,8 +74,7 @@ function isInArray(string, array) {
 }
 
 self.addEventListener('fetch', function (event) {
-
-    const url = 'https://httpbin.org/get';
+    const url = 'https://progressive-web-app-db-default-rtdb.europe-west1.firebasedatabase.app/posts';
     if (event.request.url.indexOf(url) > -1) {
         event.respondWith(
             caches.open(CACHE_DYNAMIC_NAME)
