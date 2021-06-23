@@ -81,12 +81,15 @@ self.addEventListener('fetch', function (event) {
         event.respondWith(fetch(event.request)
             .then(function (res) {
                 const clonedRes = res.clone();
-                clonedRes.json()
+                clearAllData('posts')
+                    .then(() => {
+                        return clonedRes.json();
+                    })
                     .then((data) => {
                         for (let key in data) {
-                            writeData('posts', data[key]);
+                            writeData('posts', data[key])
                         }
-                    })
+                    });
                 return res;
             })
         );
