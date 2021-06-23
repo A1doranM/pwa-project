@@ -1,6 +1,7 @@
 importScripts('/src/js/idb.js');
+importScripts('/src/js/utils.js');
 
-const CACHE_STATIC_NAME = 'static-v15';
+const CACHE_STATIC_NAME = 'static-v16';
 const CACHE_DYNAMIC_NAME = 'dynamic-v2';
 const STATIC_FILES = [
     '/',
@@ -8,6 +9,7 @@ const STATIC_FILES = [
     '/offline.html',
     '/src/js/app.js',
     '/src/js/feed.js',
+    '/src/js/utils.js',
     '/src/js/idb.js',
     '/src/js/material.min.js',
     '/src/css/app.css',
@@ -76,16 +78,17 @@ function isInArray(string, array) {
 self.addEventListener('fetch', function (event) {
     const url = 'https://progressive-web-app-db-default-rtdb.europe-west1.firebasedatabase.app/posts';
     if (event.request.url.indexOf(url) > -1) {
-        event.respondWith(
-            caches.open(CACHE_DYNAMIC_NAME)
-                .then(function (cache) {
-                    return fetch(event.request)
-                        .then(function (res) {
-                            // trimCache(CACHE_DYNAMIC_NAME, 3);
-                            cache.put(event.request, res.clone());
-                            return res;
-                        });
-                })
+        event.respondWith(fetch(event.request)
+            .then(function (res) {
+                const clonedRes = res.clone();
+                clonedRes.json()
+                    .then((data) => {
+                        for (let key in data) {
+                            writeData('posts', data[key]);
+                        }
+                    })
+                return res;
+            })
         );
     } else if (isInArray(event.request.url, STATIC_FILES)) {
         event.respondWith(

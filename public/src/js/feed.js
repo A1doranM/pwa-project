@@ -111,24 +111,12 @@ fetch(url)
         console.log('Error in feed.js while fetch data: ', err);
     });
 
-if ('caches' in window) {
-    caches.match(url)
-        .then(function (response) {
-            if (response) {
-                return response.json();
-            }
-        })
-        .then(function (data) {
-            console.log('From cache', data);
+if ('indexedDB' in window) {
+    readAllData('posts')
+        .then((data) => {
             if (!networkDataReceived) {
-                let dataArray = [];
-                for (let key in data) {
-                    dataArray.push(data[key]);
-                }
-                updateUI(dataArray);
+                console.log('From cache');
+                updateUI(data);
             }
         })
-        .catch((err) => {
-            console.log('Error in feed.js while accessing to cache: ', err);
-        });
 }
