@@ -1,7 +1,7 @@
 importScripts('/src/js/idb.js');
 importScripts('/src/js/utils.js');
 
-const CACHE_STATIC_NAME = 'static-v18';
+const CACHE_STATIC_NAME = 'static-v19';
 const CACHE_DYNAMIC_NAME = 'dynamic-v3';
 const STATIC_FILES = [
     '/',
@@ -120,6 +120,45 @@ self.addEventListener('fetch', function (event) {
                                             return cache.match('/offline.html');
                                         }
                                     });
+                            });
+                    }
+                })
+        );
+    }
+});
+
+self.addEventListener('sync', (event) => {
+    console.log('Background syncing: ', event);
+    if (event.tag === 'sync-new-posts') {
+        console.log('Syncing new posts');
+        event.waitUntil(
+            readAllData('sync-posts')
+                .then((data) => {
+                    for (let dt of data) {
+                        fetch(
+                            'https://progressive-web-app-db-default-rtdb.europe-west1.firebasedatabase.app/',
+                            {
+                                method: "POST",
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    id: dt.id,
+                                    image: "https://firebasestorage.googleapis.com/v0/b/progressive-web-app-db.appspot.com/o/sf-boat.jpg?alt=media&token=3b874fe9-f69e-47de-9178-20a70d866d49",
+                                    title: dt.title,
+                                    location: dt.location
+                                })
+                            }
+                        )
+                            .then((res) => {
+                                console.log('Data sent: ', res);
+                                if (res.ok) {
+                                    deleteItemFromData('sync-posts', dt.id);
+                                }
+                            })
+                            .catch((err) => {
+                                console.log('Error in sw.js while syncing data: ', err);
                             });
                     }
                 })

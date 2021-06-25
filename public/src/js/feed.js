@@ -1,9 +1,14 @@
-const shareImageButton = document.querySelector('#share-image-button');
+const shareImageButton = document.getElementById('share-image-button');
 const createPostArea = document.querySelector('#create-post');
 const closeCreatePostModalButton = document.querySelector('#close-create-post-modal-btn');
 const sharedMomentsArea = document.querySelector('#shared-moments');
+const form = document.querySelector('form');
+const titleInput = document.getElementById('title');
+const locationInput = document.getElementById('location');
+const confirmationToast = document.getElementById('confirmation-toast');
 
 function openCreatePostModal() {
+    console.log('open modal')
     createPostArea.style.display = 'block';
     setTimeout(() => {
         createPostArea.style.transform = 'translateY(0)';
@@ -124,3 +129,61 @@ if ('indexedDB' in window) {
             }
         })
 }
+
+function sendData() {
+    fetch(
+        'https://progressive-web-app-db-default-rtdb.europe-west1.firebasedatabase.app/',
+        {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                id: new Date().toISOString(),
+                image: "https://firebasestorage.googleapis.com/v0/b/progressive-web-app-db.appspot.com/o/sf-boat.jpg?alt=media&token=3b874fe9-f69e-47de-9178-20a70d866d49",
+                title: titleInput.value,
+                location: locationInput.value
+            })
+        }
+    )
+        .then((res) => {
+            console.log('Data sent: ', res);
+            updateUI();
+        });
+}
+
+form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    if (titleInput.value.trim() === '' || locationInput.value.trim() === '') {
+        alert('Please enter valid data');
+        return;
+    }
+
+    closeCreatePostModal();
+
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+        navigator.serviceWorker.ready
+            .then((sw) => {
+                const post = {
+                    id: new Date().toISOString(),
+                    title: titleInput.value,
+                    location: locationInput.value
+                };
+                writeData('sync-posts', post)
+                    .then(() => {
+                        return sw.sync.register('sync-new-posts');
+                    })
+                    .then(() => {
+                        const data = {message: 'Your post ws saved for sync!'};
+                        confirmationToast.MaterialSnackbar.showSnackbar(data);
+                    })
+                    .catch((err) => {
+                        console.log('Error in feed.js in form submit: ', err);
+                    });
+            });
+    } else {
+        sendData();
+    }
+});
