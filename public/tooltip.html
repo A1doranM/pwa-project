@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<style>
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+  }
+
+  .tooltip .tooltip__wrapper{
+    visibility: hidden;
+    width: max-content;
+    background-color: #ACACB5;
+    border-radius: 6px;
+    padding: 10px;
+
+    position: absolute;
+    top: -30px;
+    left: 0;
+    z-index: 1;
+  }
+
+  .tooltip__text {
+    position: relative;
+    color: white;
+    text-align: center;
+  }
+
+  .tooltip:hover .tooltip__wrapper {
+    visibility: visible;
+  }
+
+  .tooltip .tooltip__wrapper .tooltip__arrow {
+    position: absolute;
+    top: 30px;
+    left: 45%;
+    height: 12px;
+    border: 1px solid green;
+    width: 12px;
+    background: #ACACB5;
+    transform: rotate(-45deg);
+  }
+</style>
+<body style="text-align:center;">
+<p>Move the mouse over the text below:</p>
+<div class="tooltip">
+  JERM
+  <div class="tooltip__wrapper">
+    <div class="tooltip__text">
+      1234567891325345345
+    </div>
+    <div class="tooltip__arrow"></div>
+  </div>
+</div>
+
+<script>Move the mouse over the text below:</script>
+
+</body>
+</html>
